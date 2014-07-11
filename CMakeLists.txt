@@ -32,10 +32,7 @@ function(preprocess_cpsp out_var)
 endfunction()
 
 ## Compile .cpsp files to .cpp
-set(PAGES_IN
-  viewcontroller/Index.cpsp
-  viewcontroller/TimeHandler.cpsp
-  )
+file(GLOB PAGES_IN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "viewcontroller/*.cpsp")
 preprocess_cpsp(PAGES_OUT ${PAGES_IN})
 
 ## Target
