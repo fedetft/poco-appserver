@@ -1,0 +1,14 @@
+<%@ page class="Index" %>
+<%!
+#include "application_server.h"
+
+REGISTER_PAGE(Index);
+%>
+<html>
+<head>
+<meta http-equiv="Refresh" content="2; url=TimeHandler" />
+</head>
+<body>
+<p>You will be redirected <a href="TimeHandler">here</a>.</p>
+</body>
+</html>

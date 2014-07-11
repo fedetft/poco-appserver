@@ -1,0 +1,51 @@
+
+cmake_minimum_required(VERSION 2.6)
+project(TEST)
+
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
+
+# Function to handle C++ server pages code generation
+# It basically calls the cpspc tool from the Poco libraries and generates
+# the corresponding .cpp and .h file in the build directory
+# Adapted from http://www.cmake.org/pipermail/cmake/2010-June/037733.html
+find_program(CPSPC_EXECUTABLE cpspc)
+function(preprocess_cpsp out_var)
+  set(result)
+  foreach(file ${ARGN})
+    get_filename_component(basename ${file} NAME_WE)
+    set(cpsp "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+    set(cpp  "${CMAKE_CURRENT_BINARY_DIR}/${basename}.cpp")
+    set(h    "${CMAKE_CURRENT_BINARY_DIR}/${basename}.h")
+    add_custom_command(OUTPUT ${cpp} ${h}
+      COMMAND ${CPSPC_EXECUTABLE} -o ${CMAKE_CURRENT_BINARY_DIR} ${cpsp}
+      DEPENDS ${cpsp}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Preprocessing ${file}"
+      VERBATIM
+      )
+    set_source_files_properties(${cpp} PROPERTIES GENERATED 1)
+    set_source_files_properties(${h}   PROPERTIES GENERATED 1)
+    list(APPEND result ${cpp} ${h})
+  endforeach()
+  set(${out_var} "${result}" PARENT_SCOPE)
+endfunction()
+
+## Compile .cpsp files to .cpp
+set(PAGES_IN
+  viewcontroller/Index.cpsp
+  viewcontroller/TimeHandler.cpsp
+  )
+preprocess_cpsp(PAGES_OUT ${PAGES_IN})
+
+## Target
+set(TEST_SRCS main.cpp application_server.cpp)
+add_executable(test ${TEST_SRCS} ${PAGES_OUT})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+## Link libraries
+find_library(POCO_FOUNDATION PocoFoundation)
+find_library(POCO_UTIL PocoUtil)
+find_library(POCO_NET PocoNet)
+target_link_libraries(test ${POCO_FOUNDATION} ${POCO_UTIL} ${POCO_NET})
