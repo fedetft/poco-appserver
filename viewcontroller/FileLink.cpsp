@@ -1,0 +1,55 @@
+<%@ page class="FileLink"
+         formPartHandler="FileUpload"%>
+<%!
+#include <iostream>
+#include <fstream>
+#include "application_server.h"
+#include "model/file.h"
+#include "Poco/Net/PartHandler.h"
+
+using namespace std;
+using namespace Poco::Net;
+
+REGISTER_PAGE(FileLink); 
+
+class FileUpload : public PartHandler
+{
+public:
+    FileUpload(HTTPRequestHandler& request) {}
+    
+    void handlePart(const MessageHeader& header, std::istream& stream)
+    {
+        cout<<"Type:"<<header.get("Content-Type","(unspecified)");
+        if(header.has("Content-Disposition"))
+        {
+            std::string disp;
+            NameValueCollection params;
+            MessageHeader::splitParameters(header["Content-Disposition"],disp,params);
+            cout<<"Name:"<<params.get("name","(unnamed)")<<endl;
+            cout<<"FileName:"<<params.get("filename","(unnamed)")<<endl;
+            
+            FileMap& fm=FileMap::instance();
+            pair<string,string> r=fm.add(params.get("filename","(unnamed)"));
+            linkname=r.first;
+            ofstream out(r.second.c_str());
+            out<<stream.rdbuf();
+            cout<<"Link name:"<<linkname<<endl;
+        }
+    }
+    
+    string getLink() const { return linkname; }
+    
+private:
+    string linkname;
+};
+%>
+<html>
+<head>
+<title>File link</title>
+</head>
+<body>
+<h1>Get the file link</h1>
+<a href="http://localhost:9980/RetrieveFile?link=<%=cpspPartHandler.getLink()%>">
+http://localhost:9980/RetrieveFile?link=<%=cpspPartHandler.getLink()%></a>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<%@ page class="Index" %>
+<%@ page class="Index"%>
 <%!
 #include "application_server.h"
 
@@ -6,9 +6,12 @@ REGISTER_PAGE(Index);
 %>
 <html>
 <head>
-<meta http-equiv="Refresh" content="2; url=TimeHandler" />
+<title>Upload a file</title>
 </head>
 <body>
-<p>You will be redirected <a href="TimeHandler">here</a>.</p>
+<h1>Upload a file</h1>
+<form method="POST" action="/FileLink" enctype="multipart/form-data">
+<input type="file" name="file" size="31"> 
+<input type="submit" value="Upload">
+</form>
 </body>
-</html>

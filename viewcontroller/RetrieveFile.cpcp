@@ -1,0 +1,14 @@
+<%@ page class="RetrieveFile" %>
+<%!
+#include "application_server.h"
+
+REGISTER_PAGE(RetrieveFile);      
+%>
+
+<html>
+<head>
+<title>Download file</title>
+</head>
+<body>
+</body>
+</html>
