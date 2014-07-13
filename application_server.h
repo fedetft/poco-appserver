@@ -30,6 +30,7 @@
 
 #include <map>
 #include <string>
+#include <functional>
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/Net/HTTPServerRequest.h"
@@ -160,5 +161,25 @@ public:
  * server
  */
 #define REGISTER_PAGE(x) static RegisterPageAtStartup<x> page(#x)
+
+/**
+ * Decalre a global instance of this class to execute the application model
+ * initialization at startup without altering main(). You can use the
+ * REGISTER_PAGE macro to help with that
+ */
+class RegisterFunctionAtStartup
+{
+public:
+    /**
+     * Constructor
+     * \param a function that will called before main()
+     */
+    RegisterFunctionAtStartup(std::function<void ()> func) { func(); }
+};
+
+/**
+ * Use this macro to register a function to initialize the application model
+ */
+#define REGISTER_FUNCTION(x) static RegisterFunctionAtStartup startupfunc(x)
 
 #endif //APPLICATION_SERVER_H

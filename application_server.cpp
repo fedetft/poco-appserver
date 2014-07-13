@@ -28,9 +28,29 @@
 #include <iostream>
 #include <stdexcept>
 #include "application_server.h"
+#include "Poco/Net/HTTPRequestHandler.h"
+#include "Poco/Net/HTTPServerResponse.h"
 
 using namespace std;
 using namespace Poco::Net;
+
+/**
+ * Class that returns an HTTP 404
+ */
+class NotFound : public HTTPRequestHandler
+{
+public:
+    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response)
+    {
+        response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
+        response.setReason("Not found");
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("text/html");
+
+        std::ostream& responseStream = response.send();
+        responseStream << "Not Found\n";
+    }
+};
 
 //
 // class PageFactoryBase
@@ -57,11 +77,7 @@ HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequ
     if(param!=string::npos) uri=uri.substr(0,param);
     if(uri.empty()) uri="Index";
     auto it=pages.find(uri);
-    if(it==pages.end())
-    {
-        cerr<<"URI not found "<<uri<<endl;
-        return nullptr;
-    }
+    if(it==pages.end()) return new NotFound;
     return it->second->generate();
 }
 

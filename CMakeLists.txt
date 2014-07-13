@@ -35,9 +35,12 @@ endfunction()
 file(GLOB PAGES_IN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "viewcontroller/*.cpsp")
 preprocess_cpsp(PAGES_OUT ${PAGES_IN})
 
+## Compile model
+file(GLOB APP_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "model/*.cpp")
+
 ## Target
 set(POCO_APPSERVER_SRCS main.cpp application_server.cpp)
-add_executable(appsrv ${POCO_APPSERVER_SRCS} ${PAGES_OUT})
+add_executable(appsrv ${POCO_APPSERVER_SRCS} ${PAGES_OUT} ${APP_SRC})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
