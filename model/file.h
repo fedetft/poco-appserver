@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <mutex>
 #include "Poco/TemporaryFile.h"
 #include "Poco/MD5Engine.h"
 
@@ -15,6 +16,7 @@ public:
     
     std::pair<std::string,std::string> add(const std::string& name)
     {
+        std::lock_guard<std::mutex> l(m);
         Poco::TemporaryFile temp;
         temp.keepUntilExit();
         std::string tempname=temp.path();
@@ -27,6 +29,7 @@ public:
     
     std::pair<std::string,std::string> get(const std::string& param)
     {
+        std::lock_guard<std::mutex> l(m);
         return fm[param];
     }
         
@@ -34,6 +37,7 @@ private:
     FileMap();
     
     std::map<std::string, std::pair<std::string,std::string>> fm;
+    std::mutex m;
 };
 
 #endif //FILE_H
