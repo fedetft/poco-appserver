@@ -19,7 +19,7 @@ public:
     
     void handlePart(const MessageHeader& header, std::istream& stream)
     {
-        cout<<"Type:"<<header.get("Content-Type","(unspecified)");
+        cout<<"Type:"<<header.get("Content-Type","(unspecified)")<<endl;
         if(header.has("Content-Disposition"))
         {
             std::string disp;
@@ -27,14 +27,14 @@ public:
             MessageHeader::splitParameters(header["Content-Disposition"],disp,params);
             cout<<"Name:"<<params.get("name","(unnamed)")<<endl;
             cout<<"FileName:"<<params.get("filename","(unnamed)")<<endl;
-            
-            FileMap& fm=FileMap::instance();
-            pair<string,string> r=fm.add(params.get("filename","(unnamed)"));
-            linkname=r.first;
-            ofstream out(r.second.c_str());
-            out<<stream.rdbuf();
-            cout<<"Link name:"<<linkname<<endl;
         }
+        
+        FileMap& fm=FileMap::instance();
+        pair<string,string> r=fm.add(header.get("Content-Type","(unspecified)"));
+        linkname=r.first;
+        ofstream out(r.second.c_str());
+        out<<stream.rdbuf();
+        cout<<"Link name:"<<linkname<<endl;
     }
     
     string getLink() const { return linkname; }

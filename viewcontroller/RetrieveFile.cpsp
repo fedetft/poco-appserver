@@ -1,13 +1,39 @@
 <%@ page class="RetrieveFile" %>
 <%!
+#include <iostream>
 #include "application_server.h"
+#include "model/file.h"
+
+using namespace std;
 
 REGISTER_PAGE(RetrieveFile);      
 %>
 
+<%%
+//Pre-response scriptlet
+if(!form.empty())
+{
+    for(auto it : form)
+    {
+        if(it.first!="link") continue;
+        FileMap& fm=FileMap::instance();
+        cout<<"File link"<<it.second<<endl;
+        pair<string,string> r=fm.get(it.second);
+        cout<<"File name"<<r.first<<endl;
+        cout<<"File type"<<r.second<<endl;
+        if(r.first.empty()==false)
+        {
+            response.sendFile(r.first,r.second);
+            //If file was found, return, so that the HTML page is NOT sent,
+            //as it interferes with the file
+            return;
+        }
+    }
+}
+%>
 <html>
 <head>
-<title>Download file</title>
+<title>File not found</title>
 </head>
 <body>
 </body>
