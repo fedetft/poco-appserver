@@ -23,6 +23,7 @@ if(!form.empty())
         cout<<"File type"<<r.second<<endl;
         if(r.first.empty()==false)
         {
+            response.add("Content-Disposition","attachment; filename=file");
             response.sendFile(r.first,r.second);
             //If file was found, return, so that the HTML page is NOT sent,
             //as it interferes with the file
