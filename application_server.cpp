@@ -57,7 +57,11 @@ HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequ
     if(param!=string::npos) uri=uri.substr(0,param);
     if(uri.empty()) uri="Index";
     auto it=pages.find(uri);
-    if(it==pages.end()) return nullptr;
+    if(it==pages.end())
+    {
+        cerr<<"URI not found "<<uri<<endl;
+        return nullptr;
+    }
     return it->second->generate();
 }
 
