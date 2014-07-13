@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 2.6)
-project(TEST)
+project(POCO_APPSERVER)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
@@ -36,8 +36,8 @@ file(GLOB PAGES_IN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "viewcontroller/*.cpsp")
 preprocess_cpsp(PAGES_OUT ${PAGES_IN})
 
 ## Target
-set(TEST_SRCS main.cpp application_server.cpp)
-add_executable(test ${TEST_SRCS} ${PAGES_OUT})
+set(POCO_APPSERVER_SRCS main.cpp application_server.cpp)
+add_executable(appsrv ${POCO_APPSERVER_SRCS} ${PAGES_OUT})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -45,4 +45,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 find_library(POCO_FOUNDATION PocoFoundation)
 find_library(POCO_UTIL PocoUtil)
 find_library(POCO_NET PocoNet)
-target_link_libraries(test ${POCO_FOUNDATION} ${POCO_UTIL} ${POCO_NET})
+target_link_libraries(appsrv ${POCO_FOUNDATION} ${POCO_UTIL} ${POCO_NET})
