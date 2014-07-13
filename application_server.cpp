@@ -53,6 +53,8 @@ HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequ
     string uri=request.getURI();
     if(uri.empty() || uri.at(0)!='/') return nullptr;
     uri.erase(0,1); //Strip beginning /
+    size_t param=uri.find_first_of('?');
+    if(param!=string::npos) uri=uri.substr(0,param);
     if(uri.empty()) uri="Index";
     auto it=pages.find(uri);
     if(it==pages.end()) return nullptr;
