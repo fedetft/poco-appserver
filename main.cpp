@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Terraneo Federico                               *
+ *   Copyright (C) 2014 by Terraneo Federico and Andrea Bontempi           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,20 +25,74 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
-#include <unistd.h>
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPServerParams.h"
+#include "Poco/Util/ServerApplication.h"
+#include "Poco/Util/Option.h"
+#include "Poco/Util/OptionSet.h"
+#include "Poco/Util/HelpFormatter.h"
 #include "application_server.h"
 
 using namespace Poco::Net;
+using namespace Poco::Util;
 
-int main(int argc, char** argv)
+class ServiceHandler : public Poco::Util::ServerApplication
+{    
+protected:
+    void defineOptions(OptionSet& options)
+    {
+        ServerApplication::defineOptions(options);
+        options.addOption(
+            Option("help", "h", "display help")
+            .required(false)
+            .repeatable(false));
+        options.addOption(
+            Option("port","p", "Listening port (default 9980)")
+            .required(false)
+            .repeatable(true)
+            .argument("<port>"));
+    }
+
+    void handleOption(const std::string& name, const std::string& value)
+    {
+        ServerApplication::handleOption(name,value);
+        if(name=="help") helpRequested=true;
+        if(name=="port") listenPort=stoi(value);
+    }
+
+    void displayHelp()
+    {
+        HelpFormatter helpFormatter(options());
+        helpFormatter.setCommand(commandName());
+        helpFormatter.setUsage("[options]");
+        helpFormatter.setHeader("C++ server pages application server.");
+        helpFormatter.format(std::cout);
+    }
+
+    int main(const std::vector<std::string>& args)
+    {
+        if(helpRequested)
+        {
+            displayHelp();
+            return Application::EXIT_OK;
+        }
+        ServerSocket sockSrv(listenPort);
+        HTTPServer httpSrv(new RequestFactory(ApplicationServer::instance()),
+                           sockSrv,new HTTPServerParams);
+        httpSrv.start();
+        waitForTerminationRequest();
+        httpSrv.stop();
+        return Application::EXIT_OK;
+    }
+
+private:
+    bool helpRequested=false;
+    int listenPort=9980;
+};
+
+int main(int argc, char* argv[])
 {
-    ServerSocket sockSrv(9980);
-    HTTPServer httpSrv(ApplicationServer::instance(),sockSrv,new HTTPServerParams);
-    httpSrv.start();
-    //The HTTP server runs in a thread, so we have nothing to do in the main
-    pause();
-    httpSrv.stop();
+    ServiceHandler sh;    
+    return sh.run(argc,argv);
 }

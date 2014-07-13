@@ -73,7 +73,7 @@ public:
  * It dispatches the request to the correct factory based on the page uri,
  * if a suitable one has been registered, or returns nullptr
  */
-class ApplicationServer : public Poco::Net::HTTPRequestHandlerFactory
+class ApplicationServer
 {
 public:
     /**
@@ -82,7 +82,6 @@ public:
     static ApplicationServer *instance();
     
     /**
-     * \override HTTPRequestHandlerFactory::createRequestHandler()
      * \param request HTTP request
      * \return a page, or nullptr if for the request uri no page was registered
      */
@@ -108,6 +107,32 @@ private:
     
     /// Known uri and page factories are stored here
     std::map<std::string,PageFactoryBase *> pages;
+};
+
+/**
+ * Adapter class because HTTPServer wants the ownership of the pointer
+ */
+class RequestFactory : public Poco::Net::HTTPRequestHandlerFactory
+{
+public:
+    /**
+     * Constructor
+     * \param srv the application server
+     */
+    RequestFactory(ApplicationServer *srv) : srv(srv) {}
+    
+    /**
+     * \override HTTPRequestHandlerFactory::createRequestHandler()
+     * \param request HTTP request
+     * \return a page, or nullptr if for the request uri no page was registered
+     */
+    Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request)
+    {
+        return srv->createRequestHandler(request);
+    }
+    
+private:
+    ApplicationServer *srv;
 };
 
 /**
