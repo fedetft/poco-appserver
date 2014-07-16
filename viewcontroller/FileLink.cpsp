@@ -1,11 +1,10 @@
 <%@ page class="FileLink"
          formPartHandler="FileUpload"%>
 <%!
-#include <iostream>
 #include <fstream>
+#include "Poco/Net/PartHandler.h"
 #include "application_server.h"
 #include "model/file.h"
-#include "Poco/Net/PartHandler.h"
 
 using namespace std;
 using namespace Poco::Net;
@@ -19,29 +18,90 @@ public:
     
     void handlePart(const MessageHeader& header, std::istream& stream)
     {
-        cout<<"Type:"<<header.get("Content-Type","(unspecified)")<<endl;
+        string mimeType=header.get("Content-Type","(unspecified)");
+        string formName;
+        string fileName;
         if(header.has("Content-Disposition"))
         {
-            std::string disp;
-            NameValueCollection params;
-            MessageHeader::splitParameters(header["Content-Disposition"],disp,params);
-            cout<<"Name:"<<params.get("name","(unnamed)")<<endl;
-            cout<<"FileName:"<<params.get("filename","(unnamed)")<<endl;
+            string s;
+            NameValueCollection param;
+            MessageHeader::splitParameters(header["Content-Disposition"],s,param);
+            formName=param.get("name","(unnamed)");
+            fileName=param.get("filename","(unnamed)");
+        }
+        
+        //Sanitize form data
+        if(formName!="file") return;
+        if(fileName.empty()) return;
+        for(char c : fileName)
+        {
+            //To be on the safe side, reject non-ascii filenames
+            if(isascii(c) && !iscntrl(c)) continue;
+            //Filenames can't have path separators
+            if(c!='/' && c!='\\') continue;
+            linkname+=": Invalid file name.";
+            return;
+        }
+        if(mimeType!="image/jpeg"
+            && mimeType!="image/png"
+            && mimeType!="application/x-gzip"
+            && mimeType!="application/zip"
+            && mimeType!="text/plain")
+        {
+            linkname+=": Invalid file type.";
+            return;
         }
         
         FileMap& fm=FileMap::instance();
-        pair<string,string> r=fm.add(header.get("Content-Type","(unspecified)"));
-        linkname=r.first;
-        ofstream out(r.second.c_str());
-        out<<stream.rdbuf();
-        cout<<"Link name:"<<linkname<<endl;
+        shared_ptr<UploadedFile> file;
+        try {
+            file=fm.add(fileName,mimeType);
+        } catch(exception&) {
+            linkname+=": All file slot full, wait and retry.";
+            return;
+        }
+        
+        ofstream out(file->getServerFileName().c_str());
+        const int bufSize=16*1024;
+        unique_ptr<char[]> buffer(new char[bufSize]);
+        const int maxFileSize=10*1024*1024;
+        int fileSize=0;
+        for(;;)
+        {
+            stream.read(buffer.get(),bufSize);
+            int rd=stream.gcount();
+            fileSize+=rd;
+            if(fileSize>maxFileSize)
+            {
+                linkname+=": File too large.";
+                return;
+            }
+            out.write(buffer.get(),rd);
+            if(rd<=0) break;
+        }
+        
+        linkname=file->getLinkKey();
+        success=true;
     }
     
     string getLink() const { return linkname; }
     
+    bool uploadOk() const { return success; }
+    
 private:
-    string linkname;
+    string linkname="File upload error";
+    bool success=false;
 };
+%>
+
+<%
+string outcome;
+if(cpspPartHandler.uploadOk())
+{
+    outcome=
+    "<a href=\"http://"+request.getHost()+"/RetrieveFile?link="+cpspPartHandler.getLink()+
+    "\">http://"+request.getHost()+"/RetrieveFile?link="+cpspPartHandler.getLink()+"</a>";
+} else outcome=cpspPartHandler.getLink();
 %>
 <html>
 <head>
@@ -49,7 +109,8 @@ private:
 </head>
 <body>
 <h1>Get the file link</h1>
-<a href="http://localhost:9980/RetrieveFile?link=<%=cpspPartHandler.getLink()%>">
-http://localhost:9980/RetrieveFile?link=<%=cpspPartHandler.getLink()%></a>
+<%=outcome%>
+<br><br>
+<a href="http://localhost:9980">Upload another file</a>
 </body>
 </html>

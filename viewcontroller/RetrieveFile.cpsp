@@ -1,6 +1,5 @@
 <%@ page class="RetrieveFile" %>
 <%!
-#include <iostream>
 #include "application_server.h"
 #include "model/file.h"
 
@@ -17,14 +16,12 @@ if(!form.empty())
     {
         if(it.first!="link") continue;
         FileMap& fm=FileMap::instance();
-        cout<<"File link"<<it.second<<endl;
-        pair<string,string> r=fm.get(it.second);
-        cout<<"File name"<<r.first<<endl;
-        cout<<"File type"<<r.second<<endl;
-        if(r.first.empty()==false)
+        auto file=fm.get(it.second);
+        if(file)
         {
-            response.add("Content-Disposition","attachment; filename=file");
-            response.sendFile(r.first,r.second);
+            response.add("Content-Disposition",string("attachment; filename=")
+                +file->getClientFileName());
+            response.sendFile(file->getServerFileName(),file->getMimeType());
             //If file was found, return, so that the HTML page is NOT sent,
             //as it interferes with the file
             return;
@@ -37,5 +34,6 @@ if(!form.empty())
 <title>File not found</title>
 </head>
 <body>
+<h1>File not found</h1>
 </body>
 </html>
