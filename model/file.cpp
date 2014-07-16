@@ -1,6 +1,7 @@
 
 #include <stdexcept>
 #include "file.h"
+#include "configuration.h"
 
 using namespace std;
 
@@ -16,7 +17,8 @@ UploadedFile::UploadedFile(const string& clientFileName, const string& mimeType)
     linkKey=Poco::DigestEngine::digestToHex(md5.digest());
     
     deleteTime=chrono::system_clock::now();
-    deleteTime+=chrono::seconds(keepSeconds);
+    Configuration& cfg=Configuration::instance();
+    deleteTime+=chrono::seconds(cfg.keepTime);
 }
 
 //
@@ -32,7 +34,8 @@ FileMap& FileMap::instance()
 shared_ptr<UploadedFile> FileMap::add(const string& fileName, const string& mimeType)
 {
     std::lock_guard<std::mutex> l(m);
-    if(fm.size()>=maxFiles) throw runtime_error("Too many files");
+    Configuration& cfg=Configuration::instance();
+    if(fm.size()>=cfg.maxFiles) throw runtime_error("Too many files");
     shared_ptr<UploadedFile> result(new UploadedFile(fileName,mimeType));
     fm[result->getLinkKey()]=result;
     //This is the last created file, must be the last to be deleted

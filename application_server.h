@@ -100,6 +100,8 @@ private:
      * Costructor
      */
     ApplicationServer();
+    ApplicationServer(const ApplicationServer&);
+    ApplicationServer& operator= (const ApplicationServer&);
     
     /**
      * Destructor

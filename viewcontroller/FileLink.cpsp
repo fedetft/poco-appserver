@@ -5,6 +5,7 @@
 #include "Poco/Net/PartHandler.h"
 #include "application_server.h"
 #include "model/file.h"
+#include "model/configuration.h"
 
 using namespace std;
 using namespace Poco::Net;
@@ -42,11 +43,15 @@ public:
             linkname+=": Invalid file name.";
             return;
         }
-        if(mimeType!="image/jpeg"
-            && mimeType!="image/png"
-            && mimeType!="application/x-gzip"
-            && mimeType!="application/zip"
-            && mimeType!="text/plain")
+        Configuration& cfg=Configuration::instance();
+        bool found=false;
+        for(auto m : cfg.allowedMimes)
+        {
+            if(mimeType!=m) continue;
+            found=true;
+            break;
+        }
+        if(!found)
         {
             linkname+=": Invalid file type.";
             return;
@@ -64,14 +69,13 @@ public:
         ofstream out(file->getServerFileName().c_str());
         const int bufSize=16*1024;
         unique_ptr<char[]> buffer(new char[bufSize]);
-        const int maxFileSize=10*1024*1024;
         int fileSize=0;
         for(;;)
         {
             stream.read(buffer.get(),bufSize);
             int rd=stream.gcount();
             fileSize+=rd;
-            if(fileSize>maxFileSize)
+            if(fileSize>cfg.maxFileSize)
             {
                 linkname+=": File too large.";
                 return;

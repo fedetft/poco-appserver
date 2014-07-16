@@ -33,8 +33,6 @@ public:
     
     time_point getDeleteTime() const { return deleteTime; }
     
-    static const unsigned int keepSeconds=300;
-    
 private:
     std::string clientFileName; ///< Name coming from client
     std::string mimeType;       ///< Mime type
@@ -51,11 +49,11 @@ public:
     std::shared_ptr<UploadedFile> add(const std::string& fileName, const std::string& mimeType);
     
     std::shared_ptr<UploadedFile> get(const std::string& linkKey);
-    
-    static const unsigned int maxFiles=10;
         
 private:
     FileMap();
+    FileMap(const FileMap&);
+    FileMap& operator=(const FileMap&);
     
     void fileGarbageCollector();
     
