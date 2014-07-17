@@ -14,6 +14,7 @@ public:
     unsigned int maxFileSize;
     unsigned int maxFiles;
     unsigned int keepTime;
+    std::string authKey;
 private:
     Configuration();
     Configuration(const Configuration&);
