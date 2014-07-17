@@ -62,10 +62,10 @@ PageFactoryBase::~PageFactoryBase() {}
 // class ApplicationServer
 //
 
-ApplicationServer* ApplicationServer::instance()
+ApplicationServer& ApplicationServer::instance()
 {
     static ApplicationServer singleton;
-    return &singleton;
+    return singleton;
 }
 
 HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequest& request)

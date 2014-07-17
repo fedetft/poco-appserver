@@ -44,6 +44,18 @@ shared_ptr<UploadedFile> FileMap::add(const string& fileName, const string& mime
     return result;
 }
 
+void FileMap::remove(const string& linkKey)
+{
+    std::lock_guard<std::mutex> l(m);
+    for(auto it=begin(filesInDeleteOrder);it!=end(filesInDeleteOrder);++it)
+    {
+        if((*it)->getLinkKey()!=linkKey) continue;
+        filesInDeleteOrder.erase(it);
+        break;
+    }
+    fm.erase(linkKey);
+}
+
 shared_ptr<UploadedFile> FileMap::get(const string& linkKey)
 {
     std::lock_guard<std::mutex> l(m);
@@ -70,7 +82,6 @@ void FileMap::fileGarbageCollector()
         this_thread::sleep_until(wakeup);
         {
             unique_lock<mutex> l(m);
-            //Should never happen but since we've unlocked the mutex...
             if(filesInDeleteOrder.empty()) continue;
             //Note that if the file is being downloaded while we remove it
             //nothing bad happens thanks to the magic of the reference counting,

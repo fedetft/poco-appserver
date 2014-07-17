@@ -78,6 +78,7 @@ public:
             if(fileSize>cfg.maxFileSize)
             {
                 linkname+=": File too large.";
+                fm.remove(file->getLinkKey());
                 return;
             }
             out.write(buffer.get(),rd);

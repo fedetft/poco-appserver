@@ -80,7 +80,7 @@ public:
     /**
      * \return a pointer to this class (singleton)
      */
-    static ApplicationServer *instance();
+    static ApplicationServer& instance();
     
     /**
      * \param request HTTP request
@@ -122,7 +122,7 @@ public:
      * Constructor
      * \param srv the application server
      */
-    RequestFactory(ApplicationServer *srv) : srv(srv) {}
+    RequestFactory(ApplicationServer& srv) : srv(srv) {}
     
     /**
      * \override HTTPRequestHandlerFactory::createRequestHandler()
@@ -131,11 +131,11 @@ public:
      */
     Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request)
     {
-        return srv->createRequestHandler(request);
+        return srv.createRequestHandler(request);
     }
     
 private:
-    ApplicationServer *srv;
+    ApplicationServer& srv;
 };
 
 /**
@@ -154,7 +154,7 @@ public:
      */
     RegisterPageAtStartup(const std::string& name)
     {
-        ApplicationServer::instance()->registerPage(name,new PageFactory<T>);
+        ApplicationServer::instance().registerPage(name,new PageFactory<T>);
     }
 };
 

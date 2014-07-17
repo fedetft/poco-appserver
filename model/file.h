@@ -48,6 +48,8 @@ public:
     
     std::shared_ptr<UploadedFile> add(const std::string& fileName, const std::string& mimeType);
     
+    void remove(const std::string& linkKey);
+    
     std::shared_ptr<UploadedFile> get(const std::string& linkKey);
         
 private:
