@@ -1,7 +1,9 @@
 
 #include <stdexcept>
-#include "file.h"
+#include "Poco/SHA1Engine.h"
+#include "Poco/Timestamp.h"
 #include "configuration.h"
+#include "file.h"
 
 using namespace std;
 
@@ -12,12 +14,13 @@ using namespace std;
 UploadedFile::UploadedFile(const string& clientFileName, const string& mimeType)
     : clientFileName(clientFileName), mimeType(mimeType)
 {
-    Poco::MD5Engine md5;
-    md5.update(getServerFileName());
-    linkKey=Poco::DigestEngine::digestToHex(md5.digest());
+    Configuration& cfg=Configuration::instance();
+    Poco::SHA1Engine sha1;
+    Poco::Timestamp t;
+    sha1.update(getServerFileName()+to_string(t.epochMicroseconds())+cfg.salt);
+    linkKey=Poco::DigestEngine::digestToHex(sha1.digest());
     
     deleteTime=chrono::system_clock::now();
-    Configuration& cfg=Configuration::instance();
     deleteTime+=chrono::seconds(cfg.keepTime);
 }
 

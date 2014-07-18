@@ -116,6 +116,6 @@ if(cpspPartHandler.uploadOk())
 <h1>Get the file link</h1>
 <%=outcome%>
 <br><br>
-<a href="http://localhost:9980">Upload another file</a>
+<a href="http://<%=request.getHost()%>/UploadFile">Upload another file</a>
 </body>
 </html>

@@ -12,7 +12,6 @@
 #include <mutex>
 #include <condition_variable>
 #include "Poco/TemporaryFile.h"
-#include "Poco/MD5Engine.h"
 
 typedef std::chrono::time_point
     <std::chrono::system_clock,std::chrono::nanoseconds> time_point;

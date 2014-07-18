@@ -60,4 +60,5 @@ Configuration::Configuration()
     maxFiles=stoul(cfg.getString("maxFiles"));
     keepTime=stoul(cfg.getString("keepTime"));
     authKey=cfg.getString("authKey");
+    salt=cfg.getString("salt");
 }
