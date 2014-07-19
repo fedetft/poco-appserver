@@ -4,6 +4,8 @@
 
 #include <map>
 #include <list>
+#include <vector>
+#include <queue>
 #include <string>
 #include <utility>
 #include <memory>
@@ -15,6 +17,42 @@
 
 typedef std::chrono::time_point
     <std::chrono::system_clock,std::chrono::nanoseconds> time_point;
+
+class DeferredAction
+{
+public:
+    static DeferredAction& instance();
+    
+    /**
+     * Enqueue an action to be done at a given time
+     * \param when the action won't be done before this time, but may be done
+     * after
+     * \param what the callback that will be called from a backgroud thread
+     */
+    void enqueue(time_point when, std::function<void ()> what);
+    
+private:
+    DeferredAction();
+    DeferredAction(const DeferredAction&);
+    DeferredAction& operator= (const DeferredAction&);
+    
+    void actionThread();
+    
+    struct Elem
+    {
+        Elem(time_point when, std::function<void ()> what) : when(when), what(what) {}
+        
+        //Reversed order, as we want the first action, not the last
+        bool operator< (const Elem& rhs) const { return this->when > rhs.when; }
+        
+        time_point when;
+        std::function<void ()> what;
+    };
+
+    std::priority_queue<Elem> actions;
+    std::mutex m;
+    std::condition_variable c;
+};
 
 class UploadedFile
 {
@@ -30,14 +68,11 @@ public:
     
     std::string getLinkKey() const { return linkKey; }
     
-    time_point getDeleteTime() const { return deleteTime; }
-    
 private:
     std::string clientFileName; ///< Name coming from client
     std::string mimeType;       ///< Mime type
     std::string linkKey;        ///< Key used to retrieve file
     Poco::TemporaryFile file;   ///< Tempfile is deleted by this class dtor
-    time_point deleteTime;      ///< Time when file needs to be deleted
 };
 
 class FileMap
@@ -56,12 +91,8 @@ private:
     FileMap(const FileMap&);
     FileMap& operator=(const FileMap&);
     
-    void fileGarbageCollector();
-    
     std::map<std::string, std::shared_ptr<UploadedFile>> fm;
-    std::list<std::shared_ptr<UploadedFile>> filesInDeleteOrder;
     std::mutex m;
-    std::condition_variable c;
 };
 
 #endif //FILE_H

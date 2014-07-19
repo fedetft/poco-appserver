@@ -8,6 +8,59 @@
 using namespace std;
 
 //
+// class DeferredAction
+//
+
+DeferredAction& DeferredAction::instance()
+{
+    static DeferredAction singleton;
+    return singleton;
+}
+
+void DeferredAction::enqueue(time_point when, function<void ()> what)
+{
+    unique_lock<mutex> l(m);
+    actions.push(Elem(when,what));
+    c.notify_one();
+}
+
+void DeferredAction::actionThread()
+{
+    for(;;)
+    {
+        time_point wakeup;
+        {
+            unique_lock<mutex> l(m);
+            while(actions.empty()) c.wait(l);
+            wakeup=actions.top().when;
+        }
+        //Wait with the mutex unlocked
+        //FIXME: what if an earlier callback arrives while waiting? Some actions
+        //may be executed a long time after their desired time
+        this_thread::sleep_until(wakeup);
+        for(;;)
+        {
+            auto now=chrono::system_clock::now();
+            function<void ()> f;
+            {
+                unique_lock<mutex> l(m);
+                if(actions.empty() || actions.top().when>now) break;
+                f=actions.top().what;
+                actions.pop();
+            }
+            //Call the callback with the mutex unlocked
+            f();
+        }
+    }
+}
+
+DeferredAction::DeferredAction()
+{
+    thread t(&DeferredAction::actionThread,this);
+    t.detach();
+}
+
+//
 // class UploadedFile
 //
 
@@ -19,9 +72,6 @@ UploadedFile::UploadedFile(const string& clientFileName, const string& mimeType)
     Poco::Timestamp t;
     sha1.update(getServerFileName()+to_string(t.epochMicroseconds())+cfg.salt);
     linkKey=Poco::DigestEngine::digestToHex(sha1.digest());
-    
-    deleteTime=chrono::system_clock::now();
-    deleteTime+=chrono::seconds(cfg.keepTime);
 }
 
 //
@@ -41,21 +91,16 @@ shared_ptr<UploadedFile> FileMap::add(const string& fileName, const string& mime
     if(fm.size()>=cfg.maxFiles) throw runtime_error("Too many files");
     shared_ptr<UploadedFile> result(new UploadedFile(fileName,mimeType));
     fm[result->getLinkKey()]=result;
-    //This is the last created file, must be the last to be deleted
-    filesInDeleteOrder.push_back(result);
-    c.notify_one();
+    DeferredAction& da=DeferredAction::instance();
+    da.enqueue(chrono::system_clock::now()+chrono::seconds(cfg.keepTime),
+               bind(&FileMap::remove,this,result->getLinkKey()));
+    
     return result;
 }
 
 void FileMap::remove(const string& linkKey)
 {
     std::lock_guard<std::mutex> l(m);
-    for(auto it=begin(filesInDeleteOrder);it!=end(filesInDeleteOrder);++it)
-    {
-        if((*it)->getLinkKey()!=linkKey) continue;
-        filesInDeleteOrder.erase(it);
-        break;
-    }
     fm.erase(linkKey);
 }
 
@@ -65,33 +110,4 @@ shared_ptr<UploadedFile> FileMap::get(const string& linkKey)
     return fm[linkKey];
 }
 
-FileMap::FileMap()
-{
-    thread t(&FileMap::fileGarbageCollector,this);
-    t.detach();
-}
-
-void FileMap::fileGarbageCollector()
-{
-    for(;;)
-    {
-        time_point wakeup;
-        {
-            unique_lock<mutex> l(m);
-            while(filesInDeleteOrder.empty()) c.wait(l);
-            wakeup=filesInDeleteOrder.front()->getDeleteTime();
-        }
-        //Wait with the mutex unlocked
-        this_thread::sleep_until(wakeup);
-        {
-            unique_lock<mutex> l(m);
-            if(filesInDeleteOrder.empty()) continue;
-            //Note that if the file is being downloaded while we remove it
-            //nothing bad happens thanks to the magic of the reference counting,
-            //it will simply be deleted when the download code, that holds the
-            //last reference will end. Easy
-            fm.erase(filesInDeleteOrder.front()->getLinkKey());
-            filesInDeleteOrder.pop_front();
-        }
-    }
-}
+FileMap::FileMap() {}

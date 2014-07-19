@@ -6,12 +6,12 @@ REGISTER_PAGE(Index);
 %>
 <html>
 <head>
-<title>Upload a file</title>
+<title>Please log in</title>
 </head>
 <body>
-<h1>Upload a file</h1>
-<form method="POST" action="/FileLink" enctype="multipart/form-data">
-<input type="file" name="file" size="31"> 
-<input type="submit" value="Upload">
+<h1>Please log in</h1>
+<form method="POST" action="/UploadFile">
+<input type="text" name="authKey" size="31"> 
+<input type="submit" value="Login">
 </form>
 </body>

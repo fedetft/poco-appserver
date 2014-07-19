@@ -1,0 +1,33 @@
+<%@ page class="UploadFile"%>
+<%!
+#include "model/configuration.h"
+#include "application_server.h"
+
+REGISTER_PAGE(UploadFile);
+%>
+<%%
+//Pre-response scriptlet
+Configuration& cfg=Configuration::instance();
+bool ok=false;
+if(form.empty()==false)
+{
+    for(auto it=form.begin();it!=form.end();++it)
+    {
+        if(it->first!="authKey") continue;
+        if(it->second==cfg.authKey) ok=true;
+        break;
+    }
+}
+if(ok==false) return response.redirect("/");
+%>
+<html>
+<head>
+<title>Upload a file</title>
+</head>
+<body>
+<h1>Upload a file</h1>
+<form method="POST" action="/FileLink" enctype="multipart/form-data">
+<input type="file" name="file" size="31"> 
+<input type="submit" value="Upload">
+</form>
+</body>
