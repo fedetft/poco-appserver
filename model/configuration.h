@@ -14,6 +14,7 @@ public:
     unsigned int maxFileSize;
     unsigned int maxFiles;
     unsigned int keepTime;
+    unsigned int maxUsers;
     std::string authKey;
     std::string salt;
 private:

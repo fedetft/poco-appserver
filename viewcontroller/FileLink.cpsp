@@ -99,6 +99,15 @@ private:
 };
 %>
 
+<%%
+//Pre-response scriptlet
+NameValueCollection cookies;
+request.getCookies(cookies);
+string cookie=cookies.get("login","");
+UserLogin& login=UserLogin::instance();
+if(login.isLoggedIn(cookie)==false) return response.redirect("/");
+%>
+
 <%
 string outcome;
 if(cpspPartHandler.uploadOk())

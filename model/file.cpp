@@ -1,7 +1,7 @@
 
+#include <iostream>
 #include <stdexcept>
 #include "Poco/SHA1Engine.h"
-#include "Poco/Timestamp.h"
 #include "configuration.h"
 #include "file.h"
 
@@ -69,8 +69,8 @@ UploadedFile::UploadedFile(const string& clientFileName, const string& mimeType)
 {
     Configuration& cfg=Configuration::instance();
     Poco::SHA1Engine sha1;
-    Poco::Timestamp t;
-    sha1.update(getServerFileName()+to_string(t.epochMicroseconds())+cfg.salt);
+    auto tt=chrono::system_clock::now().time_since_epoch().count();
+    sha1.update(getServerFileName()+to_string(tt)+cfg.salt);
     linkKey=Poco::DigestEngine::digestToHex(sha1.digest());
 }
 
@@ -107,7 +107,48 @@ void FileMap::remove(const string& linkKey)
 shared_ptr<UploadedFile> FileMap::get(const string& linkKey)
 {
     std::lock_guard<std::mutex> l(m);
-    return fm[linkKey];
+    auto it=fm.find(linkKey);
+    if(it==fm.end()) return shared_ptr<UploadedFile>(); //Points to null
+    return it->second;
 }
 
 FileMap::FileMap() {}
+
+//
+// class UserLogin
+//
+
+UserLogin& UserLogin::instance()
+{
+    static UserLogin singleton;
+    return singleton;
+}
+
+string UserLogin::newUser()
+{
+    std::lock_guard<std::mutex> l(m);
+    Configuration& cfg=Configuration::instance();
+    if(logged.size()>=cfg.maxUsers) throw runtime_error("Too many users");
+    Poco::SHA1Engine sha1;
+    auto now=chrono::system_clock::now();
+    sha1.update(to_string(now.time_since_epoch().count())+cfg.salt);
+    string result=Poco::DigestEngine::digestToHex(sha1.digest());
+    logged.insert(result);
+    DeferredAction& da=DeferredAction::instance();
+    da.enqueue(now+chrono::seconds(cfg.keepTime),bind(&UserLogin::remove,this,result));
+    return result;
+}
+
+void UserLogin::remove(const string& cookie)
+{
+    std::lock_guard<std::mutex> l(m);
+    logged.erase(cookie);
+}
+
+bool UserLogin::isLoggedIn(const string& cookie)
+{
+    std::lock_guard<std::mutex> l(m);
+    return logged.count(cookie)==1;
+}
+
+UserLogin::UserLogin() {}

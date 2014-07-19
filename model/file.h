@@ -3,7 +3,7 @@
 #define FILE_H
 
 #include <map>
-#include <list>
+#include <set>
 #include <vector>
 #include <queue>
 #include <string>
@@ -92,6 +92,26 @@ private:
     FileMap& operator=(const FileMap&);
     
     std::map<std::string, std::shared_ptr<UploadedFile>> fm;
+    std::mutex m;
+};
+
+class UserLogin
+{
+public:
+    static UserLogin& instance();
+    
+    std::string newUser();
+    
+    void remove(const std::string& cookie);
+    
+    bool isLoggedIn(const std::string& cookie);
+    
+private:
+    UserLogin();
+    UserLogin(const UserLogin&);
+    UserLogin& operator= (const UserLogin&);
+    
+    std::set<std::string> logged;
     std::mutex m;
 };
 

@@ -1,20 +1,41 @@
 <%@ page class="UploadFile"%>
 <%!
+#include "Poco/Net/HTTPCookie.h"
+#include "Poco/Net/NameValueCollection.h"
 #include "model/configuration.h"
 #include "application_server.h"
+#include "model/file.h"
+
+using namespace std;
+using namespace Poco::Net;
 
 REGISTER_PAGE(UploadFile);
 %>
+
 <%%
 //Pre-response scriptlet
 Configuration& cfg=Configuration::instance();
+UserLogin& login=UserLogin::instance();
 bool ok=false;
-if(form.empty()==false)
+
+NameValueCollection cookies;
+request.getCookies(cookies);
+string cookie=cookies.get("login","");
+if(login.isLoggedIn(cookie))
 {
+    //User has our cookie
+    ok=true;
+} else if(form.empty()==false) {
+    //User has no cookie, but may be logging in
     for(auto it=form.begin();it!=form.end();++it)
     {
         if(it->first!="authKey") continue;
-        if(it->second==cfg.authKey) ok=true;
+        if(it->second!=cfg.authKey) continue;
+        //User logged in
+        ok=true;
+        HTTPCookie cookie("login",login.newUser());
+        cookie.setMaxAge(cfg.keepTime);
+        response.addCookie(cookie);
         break;
     }
 }
