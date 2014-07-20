@@ -10,6 +10,7 @@ class Configuration
 public:
     static Configuration& instance();
     
+    std::string basepath;
     std::vector<std::string> allowedMimes;
     unsigned int maxFileSize;
     unsigned int maxFiles;

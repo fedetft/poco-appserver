@@ -1,8 +1,13 @@
 <%@ page class="Index"%>
 <%!
 #include "application_server.h"
+#include "model/configuration.h"
 
 REGISTER_PAGE(Index);
+%>
+
+<%
+Configuration& cfg=Configuration::instance();
 %>
 <html>
 <head>
@@ -10,7 +15,7 @@ REGISTER_PAGE(Index);
 </head>
 <body>
 <h1>Please log in</h1>
-<form method="POST" action="/UploadFile">
+<form method="POST" action="<%=cfg.basepath%>UploadFile">
 <input type="text" name="authKey" size="31"> 
 <input type="submit" value="Login">
 </form>

@@ -39,7 +39,7 @@ if(login.isLoggedIn(cookie))
         break;
     }
 }
-if(ok==false) return response.redirect("/");
+if(ok==false) return response.redirect(cfg.basepath);
 %>
 <html>
 <head>
@@ -47,7 +47,7 @@ if(ok==false) return response.redirect("/");
 </head>
 <body>
 <h1>Upload a file</h1>
-<form method="POST" action="/FileLink" enctype="multipart/form-data">
+<form method="POST" action="<%=cfg.basepath%>FileLink" enctype="multipart/form-data">
 <input type="file" name="file" size="31"> 
 <input type="submit" value="Upload">
 </form>

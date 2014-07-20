@@ -27,6 +27,7 @@ Configuration& Configuration::instance()
 Configuration::Configuration()
 {
     ConfigFile cfg("config.ini");
+    basepath=cfg.getString("basepath");
     string mimes=cfg.getString("allowedMimes");
     for(size_t a=0;;)
     {

@@ -101,11 +101,12 @@ private:
 
 <%%
 //Pre-response scriptlet
+Configuration& cfg=Configuration::instance();
 NameValueCollection cookies;
 request.getCookies(cookies);
 string cookie=cookies.get("login","");
 UserLogin& login=UserLogin::instance();
-if(login.isLoggedIn(cookie)==false) return response.redirect("/");
+if(login.isLoggedIn(cookie)==false) return response.redirect(cfg.basepath);
 %>
 
 <%
@@ -113,8 +114,8 @@ string outcome;
 if(cpspPartHandler.uploadOk())
 {
     outcome=
-    "<a href=\"http://"+request.getHost()+"/RetrieveFile?link="+cpspPartHandler.getLink()+
-    "\">http://"+request.getHost()+"/RetrieveFile?link="+cpspPartHandler.getLink()+"</a>";
+    "<a href=\"http://"+request.getHost()+cfg.basepath+"RetrieveFile?link="+cpspPartHandler.getLink()+
+    "\">http://"+request.getHost()+cfg.basepath+"RetrieveFile?link="+cpspPartHandler.getLink()+"</a>";
 } else outcome=cpspPartHandler.getLink();
 %>
 <html>
@@ -125,6 +126,6 @@ if(cpspPartHandler.uploadOk())
 <h1>Get the file link</h1>
 <%=outcome%>
 <br><br>
-<a href="http://<%=request.getHost()%>/UploadFile">Upload another file</a>
+<a href="http://<%=request.getHost()+cfg.basepath%>UploadFile">Upload another file</a>
 </body>
 </html>
