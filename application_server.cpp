@@ -71,10 +71,10 @@ ApplicationServer& ApplicationServer::instance()
 HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequest& request)
 {
     string uri=request.getURI();
+    cout<<uri<<endl;
     for(;;)
     {
-        if(uri.empty()) return nullptr;
-        if(uri.at(0)!='/') break;
+        if(uri.empty() || uri.at(0)!='/') break;
         uri.erase(0,1); //Strip beginning /
     }
     size_t param=uri.find_first_of('?');
