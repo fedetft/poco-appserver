@@ -71,7 +71,6 @@ ApplicationServer& ApplicationServer::instance()
 HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequest& request)
 {
     string uri=request.getURI();
-    cout<<uri<<endl;
     for(;;)
     {
         if(uri.empty() || uri.at(0)!='/') break;
