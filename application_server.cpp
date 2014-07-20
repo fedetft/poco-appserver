@@ -71,8 +71,12 @@ ApplicationServer& ApplicationServer::instance()
 HTTPRequestHandler* ApplicationServer::createRequestHandler(const HTTPServerRequest& request)
 {
     string uri=request.getURI();
-    if(uri.empty() || uri.at(0)!='/') return nullptr;
-    uri.erase(0,1); //Strip beginning /
+    for(;;)
+    {
+        if(uri.empty()) return nullptr;
+        if(uri.at(0)!='/') break;
+        uri.erase(0,1); //Strip beginning /
+    }
     size_t param=uri.find_first_of('?');
     if(param!=string::npos) uri=uri.substr(0,param);
     if(uri.empty()) uri="Index";
