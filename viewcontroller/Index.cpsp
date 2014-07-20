@@ -2,13 +2,25 @@
 <%!
 #include "application_server.h"
 #include "model/configuration.h"
+#include "model/file.h"
+
+using namespace std;
+using namespace Poco::Net;
 
 REGISTER_PAGE(Index);
 %>
 
-<%
+<%%
+//Pre-response scriptlet
 Configuration& cfg=Configuration::instance();
+NameValueCollection cookies;
+request.getCookies(cookies);
+string cookie=cookies.get("login","");
+UserLogin& login=UserLogin::instance();
+//Skip login form if logged in
+if(login.isLoggedIn(cookie)) return response.redirect(cfg.basepath+"UploadFile");
 %>
+
 <html>
 <head>
 <title>Please log in</title>
