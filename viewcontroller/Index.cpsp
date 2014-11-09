@@ -28,7 +28,7 @@ if(login.isLoggedIn(cookie)) return response.redirect(cfg.basepath+"UploadFile")
 <body>
 <h1>Please log in</h1>
 <form method="POST" action="<%=cfg.basepath%>UploadFile">
-<input type="text" name="authKey" size="31"> 
+<input type="password" name="authKey" size="31"> 
 <input type="submit" value="Login">
 </form>
 </body>
