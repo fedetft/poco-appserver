@@ -34,11 +34,13 @@
 #include "Poco/Util/HelpFormatter.h"
 #include "application_server.h"
 
+#include <iostream>
+
 using namespace Poco::Net;
 using namespace Poco::Util;
 
 class ServiceHandler : public Poco::Util::ServerApplication
-{    
+{
 protected:
     void defineOptions(OptionSet& options)
     {
