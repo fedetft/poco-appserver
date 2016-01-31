@@ -28,6 +28,7 @@ Configuration::Configuration()
 {
     ConfigFile cfg("config.ini");
     basepath=cfg.getString("basepath");
+    resourcepath=cfg.getString("resourcepath");
     string mimes=cfg.getString("allowedMimes");
     for(size_t a=0;;)
     {

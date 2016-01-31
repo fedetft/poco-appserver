@@ -11,6 +11,7 @@ public:
     static Configuration& instance();
     
     std::string basepath;
+    std::string resourcepath;
     std::vector<std::string> allowedMimes;
     unsigned int maxFileSize;
     unsigned int maxFiles;

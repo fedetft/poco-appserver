@@ -25,6 +25,7 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
  ***************************************************************************/
 
+#include <iostream>
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPServerParams.h"
@@ -33,8 +34,6 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include "application_server.h"
-
-#include <iostream>
 
 using namespace Poco::Net;
 using namespace Poco::Util;

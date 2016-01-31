@@ -118,6 +118,7 @@ if(cpspPartHandler.uploadOk())
     "\">"+cfg.basepath+"RetrieveFile?link="+cpspPartHandler.getLink()+"</a>";
 } else outcome=cpspPartHandler.getLink();
 %>
+
 <html>
 <head>
 <title>File link</title>

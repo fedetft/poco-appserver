@@ -31,8 +31,11 @@ if(login.isLoggedIn(cookie))
     {
         if(it->first!="authKey") continue;
         if(it->second!=cfg.authKey) continue;
+        //TODO: handle authId
         //User logged in
         ok=true;
+        //FIXME: if max number of user is exceeded, newUser() throws and
+        //the client sees a connection reset error
         HTTPCookie cookie("login",login.newUser());
         cookie.setMaxAge(cfg.keepTime);
         response.addCookie(cookie);
@@ -41,36 +44,42 @@ if(login.isLoggedIn(cookie))
 }
 if(ok==false) return response.redirect(cfg.basepath);
 %>
+
 <html>
 <head>
-<title>Upload a file</title>
-<style>
-body { padding: 30px }
-form { display: block; margin: 20px auto; background: #eee; border-radius: 10px; padding: 15px }
-
-.progress { position:relative; width:400px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
-.bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
-.percent { position:absolute; display:inline-block; top:3px; left:48%; }
-</style>
+ <title>FileLink file upload service</title>
 </head>
-<body>
-    <h1>FileLink</h1>
-<form method="POST" action="<%=cfg.basepath%>FileLink" enctype="multipart/form-data">
-<input type="file" name="file" size="31"><input type="submit" value="Upload">
-    </form>
-    
-    <div class="progress">
-        <div class="bar"></div >
-        <div class="percent">0%</div >
-    </div>
-    
-    <div id="status"></div>
-    
-<script src="http://code.jquery.com/jquery-1.7.min.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
-<script>
+<body bgcolor="#eee">
+ <div style="text-align: center;">
+ <div style="box-sizing: border-box; display: inline-block; width: auto; max-width: 960px; background-color: #FFFFFF; border: 2px solid #0361A8; border-radius: 10px; box-shadow: 0px 0px 8px #0361A8; margin: 50px auto auto;">
+ <div style="background: #0361A8; border-radius: 5px 5px 0px 0px; padding: 15px;"><span style="font-family: verdana,arial; color: #D4D4D4; font-size: 1.00em; font-weight:bold;">FileLink file upload service</span></div>
+ <div style="background: ; padding: 15px" id="ap_style">
+ <style type="text/css" scoped>
+  #ap_style td { text-align:left; font-family: verdana,arial; color: #064073; font-size: 1.00em; }
+  #ap_style input { border: 1px solid #CCCCCC; border-radius: 5px; color: #666666; display: inline-block; font-size: 1.00em;  padding: 5px; }
+  #ap_style input[type="text"], input[type="password"] { width: 100%; }
+  #ap_style input[type="button"], #ap_style input[type="reset"], #ap_style input[type="submit"] { height: auto; width: auto; cursor: pointer; box-shadow: 0px 0px 5px #0361A8; float: right; text-align:right; margin-top: 10px; margin-left:7px;}
+  #ap_style input[type="file"] { margin-top: 8px; margin-left:7px;}
+  #ap_style table.center { margin-left:auto; margin-right:auto; }
+  #ap_style .error { font-family: verdana,arial; color: #D41313; font-size: 1.00em; }
+  .progress { position:relative; width:400px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
+  .bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+  .percent { position:absolute; display:inline-block; top:3px; left:48%; }
+ </style>
+ <form method="POST" action="<%=cfg.basepath%>FileLink" enctype="multipart/form-data">
+  <input type="file" name="file" size="31">
+  <input type="submit" value="Upload">
+ </form>
+ <div class="progress">
+ <div class="bar"></div>
+ <div class="percent">0%</div>
+ </div>
+ </div></div></div>
+ <div id="status"></div>
+ <script src="<%=cfg.resourcepath%>jquery-1.7.min.js"></script>
+ <script src="<%=cfg.resourcepath%>jquery.form.js"></script>
+ <script>
 (function() {
-    
 var bar = $('.bar');
 var percent = $('.percent');
 var status = $('#status');
@@ -86,18 +95,18 @@ $('form').ajaxForm({
         var percentVal = percentComplete + '%';
         bar.width(percentVal)
         percent.html(percentVal);
-		//console.log(percentVal, position, total);
+        //console.log(percentVal, position, total);
     },
     success: function() {
         var percentVal = '100%';
         bar.width(percentVal)
         percent.html(percentVal);
     },
-	complete: function(xhr) {
-		status.html(xhr.responseText);
-	}
-}); 
-
+    complete: function(xhr) {
+        status.html(xhr.responseText);
+    }
+});
 })();       
-</script>
+ </script>
 </body>
+</html>
