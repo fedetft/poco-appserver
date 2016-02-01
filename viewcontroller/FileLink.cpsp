@@ -121,12 +121,10 @@ if(cpspPartHandler.uploadOk())
 
 <html>
 <head>
-<title>File link</title>
+    <title>File link</title>
 </head>
 <body>
-<h1>Get the file link</h1>
-<%=outcome%>
-<br><br>
-<a href="<%=cfg.basepath%>UploadFile">Upload another file</a>
+    <h4>Get the file link</h4>
+    <%=outcome%>
 </body>
 </html>
