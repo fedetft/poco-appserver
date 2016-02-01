@@ -152,6 +152,10 @@ $('form').ajaxForm({
     },
     complete: function(xhr) {
         progress.hide();
+        // Reset to fix animation
+        var percentVal = '0%';
+        bar.width(percentVal);
+        percent.html(percentVal);
         status.html(xhr.responseText);
         status.show();
     }
