@@ -95,7 +95,7 @@ input[readonly] {
     <div class="container">
         <div class="col-lg-6 col-sm-6 col-12">
             <h4>FileLink file upload service</h4>
-            <form method="POST" action="http://localhost:9980/FileLink" enctype="multipart/form-data">
+            <form method="POST" action="<%=cfg.resourcepath%>FileLink" enctype="multipart/form-data">
                 <div class="input-group">
                     <span class="input-group-btn">
                         <span class="btn btn-primary btn-file">
