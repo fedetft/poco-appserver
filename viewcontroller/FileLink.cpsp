@@ -119,12 +119,4 @@ if(cpspPartHandler.uploadOk())
 } else outcome=cpspPartHandler.getLink();
 %>
 
-<html>
-<head>
-    <title>File link</title>
-</head>
-<body>
-    <h4>Get the file link</h4>
-    <%=outcome%>
-</body>
-</html>
+<%=outcome%>

@@ -46,82 +46,62 @@ if(ok==false) return response.redirect(cfg.basepath);
 %>
 
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FileLink file upload service</title>
-    <script src="<%=cfg.resourcepath%>jquery-1.11.0.min.js"></script>
-    <script src="<%=cfg.resourcepath%>jquery.form.js"></script>
-    <script src="<%=cfg.resourcepath%>bootstrap.min.js"></script>
-    <link href="<%=cfg.resourcepath%>bootstrap.min.css" rel="stylesheet">
-    <style type="text/css">
-body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #eee;
-}
-
-.btn-file {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-file input[type=file], .btn-file input[type=submit] {
-  position: absolute;
-  top: 0;
-  right: 0;
-  min-width: 100%;
-  min-height: 100%;
-  font-size: 100px;
-  text-align: right;
-  filter: alpha(opacity=0);
-  opacity: 0;
-  background: red;
-  cursor: inherit;
-  display: block;
-}
-
-input[readonly] {
-  background-color: white !important;
-  cursor: text !important;
-}
-    </style>
-  </head>
-  <body>
-    <body>
-    <div class="container">
-        <div class="col-lg-6 col-sm-6 col-12">
-            <h4>FileLink file upload service</h4>
-            <form method="POST" action="<%=cfg.basepath%>FileLink" enctype="multipart/form-data">
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <span class="btn btn-primary btn-file">
-                            Browse… <input name="file" multiple="" type="file">
-                        </span>
-                    </span>
-                    <input class="form-control" readonly="readonly" type="text">
-                    <span class="input-group-btn">
-                        <span class="btn btn-primary btn-file">
-                            Upload <input type="submit">
-                        </span>
-                    </span>
-                </div>
-            </form>
-        </div>
-    </div> <!-- /container -->
-    <br>
-    <div class="container">
-        <div class="progress" style="display: none;">
-            <div class="progress-bar" role="progressbar" style="width: 0%;">
-                <div class="percent">0%</div>
-            </div>
-        </div>
-    </div> <!-- /container -->
-    <div class="container">
-        <div class="well well-lg" id="status" style="display: none;">
-        </div>
-    </div> <!-- /container -->
-    <script src="<%=cfg.resourcepath%>uploadfile.js"></script>
-</body></html>
+<html>
+	<head>
+		<title>Filelink</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="<%=cfg.resourcepath%>css/bootstrap.min.css" />
+		<link rel="stylesheet" href="<%=cfg.resourcepath%>css/bootstrap-theme.min.css" />
+		<script type="text/javascript" src="<%=cfg.resourcepath%>js/jquery.min.js"></script>
+		<script type="text/javascript" src="<%=cfg.resourcepath%>js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="<%=cfg.resourcepath%>js/upload.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="page-header">
+					<h1>Filelink <small>upload a file</small></h1>
+				</div>
+			</div>
+			<div class="col-md-6 col-md-offset-3">
+				<div class="row">
+					<form method="POST" action="<%=cfg.basepath%>FileLink" enctype="multipart/form-data">
+						<div class="input-group">
+							<span class="input-group-btn">
+							<label class="btn btn-default" for="input-file">
+								<input id="input-file" type="file" class="hidden" name="file">
+									Browse&hellip;
+								</label>
+							</span>
+							<input id="input-filename" class="form-control" type="text" readonly>
+							<span class="input-group-btn">
+								<button type="submit" class="btn btn-primary">Upload</button>
+							</span>
+						</div>
+					</form>
+				</div>
+				<br>
+				<div id="progressbar-group" class="row hidden">
+					<div class="progress">
+						<div id="progressbar" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="min-width: 2em;">
+						</div>
+					</div>
+				</div>
+				<div id="success-status-group" class="row hidden">
+					<div class="alert alert-success" role="alert">
+						<span class="glyphicon glyphicon glyphicon-ok"></span>
+						<strong>Success</strong>, get the file link.
+						<br>
+						<div id="link"></div>
+					</div>
+				</div>
+				<div id="failed-status-group" class="row hidden">
+					<div class="alert alert-danger" role="alert">
+						<span class="glyphicon glyphicon glyphicon-remove"></span>
+						<strong>Error</strong>
+						<div id="error"></div>
+					</div>
+				</div>
+			</div>
+	</body>
+</html>
