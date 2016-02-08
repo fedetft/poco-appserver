@@ -6,6 +6,7 @@ BSTRAPVER=3.3.6
 mkdir js
 cd js
 wget code.jquery.com/jquery-$JQVER.min.js
+mv jquery-$JQVER.min.js jquery.min.js
 wget https://maxcdn.bootstrapcdn.com/bootstrap/$BSTRAPVER/js/bootstrap.min.js
 cp ../upload.js .
 #wget http://malsup.github.com/jquery.form.js
