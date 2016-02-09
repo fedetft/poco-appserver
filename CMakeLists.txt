@@ -6,7 +6,8 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Where to find the sources of your aplication
-set(APPLICATION_BASE_DIR filelink)
+## TODO: modify this to point to your application directory
+set(APPLICATION_BASE_DIR ../filelink)
 
 # Function to handle C++ server pages code generation
 # It basically calls the cpspc tool from the Poco libraries and generates
