@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 2.6)
 project(POCO_APPSERVER)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+## Where to find the sources of your aplication
+set(APPLICATION_BASE_DIR filelink)
 
 # Function to handle C++ server pages code generation
 # It basically calls the cpspc tool from the Poco libraries and generates
@@ -32,17 +35,18 @@ function(preprocess_cpsp out_var)
 endfunction()
 
 ## Compile .cpsp files to .cpp
-file(GLOB PAGES_IN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "viewcontroller/*.cpsp")
+file(GLOB PAGES_IN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${APPLICATION_BASE_DIR}/viewcontroller/*.cpsp")
 preprocess_cpsp(PAGES_OUT ${PAGES_IN})
 
 ## Compile model
-file(GLOB APP_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "model/*.cpp")
+file(GLOB APP_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${APPLICATION_BASE_DIR}/model/*.cpp")
 
 ## Target
 set(POCO_APPSERVER_SRCS main.cpp application_server.cpp)
 add_executable(appsrv ${POCO_APPSERVER_SRCS} ${PAGES_OUT} ${APP_SRC})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/${APPLICATION_BASE_DIR})
 
 ## Link libraries
 find_library(POCO_FOUNDATION PocoFoundation)
